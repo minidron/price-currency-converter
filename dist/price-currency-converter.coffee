@@ -10,15 +10,18 @@ do ($=jQuery, window, document) ->
       RUB:
         name: 'Российский рубль'
         symbol: '₽'
+      AZN:
+        name: 'Азербайджанский манат'
+        symbol: '₼'
+      GEL:
+        name: 'Грузинский лари'
+        symbol: '₾'
       USD:
         name: 'Доллар США'
         symbol: '$'
       CZK:
         name: 'Чешская крона'
         symbol: 'Kč'
-      AZN:
-        name: 'Азербайджанский манат'
-        symbol: '₼'
 
     render: ->
       options = ''
@@ -80,10 +83,10 @@ do ($=jQuery, window, document) ->
           rubPrice = defaultPrice
         else
           currency = ListCurrency.currencyObj[defaultCurrency]
-          rubPrice = defaultPrice / currency.n * currency.v
+          rubPrice = defaultPrice * currency.v
           if @_currentCurrency.currency is 'RUB'
             return Math.ceil rubPrice
-        Math.ceil rubPrice * @_currentCurrency.n / @_currentCurrency.v
+        Math.ceil rubPrice / @_currentCurrency.v
 
     changePrices: (newCurrency) ->
       @_currentCurrency = $.extend(
@@ -179,8 +182,7 @@ do ($=jQuery, window, document) ->
           result = {}
           $.map data, (val, key) ->
             result[key] =
-              v: val.Value
-              n: val.Nominal
+              v: val.value
           ListCurrency.currencyObj = result
           ListCurrency.initPrice()
           Cookies.set(
