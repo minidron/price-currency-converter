@@ -1,0 +1,11 @@
+{
+    "name": "price-currency-converter",
+    "main":  "dist/price-currency-converter.coffee",
+    "ignore": [
+        ".gitignore", 
+    ],
+    "dependencies": {
+        "jquery": ">=1.10",
+        "js-cookie": ">=1.5.0"
+    }
+}
