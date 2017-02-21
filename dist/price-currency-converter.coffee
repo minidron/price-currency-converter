@@ -10,6 +10,9 @@ do ($=jQuery, window, document) ->
       RUB:
         name: 'Российский рубль'
         symbol: '₽'
+      AMD:
+        name: 'Армянский драм'
+        symbol: '֏'
       AZN:
         name: 'Азербайджанский манат'
         symbol: '₼'
