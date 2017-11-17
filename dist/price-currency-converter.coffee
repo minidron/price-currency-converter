@@ -6,29 +6,9 @@ do ($=jQuery, window, document) ->
     ###
     @_events: false
 
-    @currency:
-      RUB:
-        name: 'Российский рубль'
-        symbol: '₽'
-      AMD:
-        name: 'Армянский драм'
-        symbol: '֏'
-      AZN:
-        name: 'Азербайджанский манат'
-        symbol: '₼'
-      GEL:
-        name: 'Грузинский лари'
-        symbol: '₾'
-      USD:
-        name: 'Доллар США'
-        symbol: '$'
-      CZK:
-        name: 'Чешская крона'
-        symbol: 'Kč'
-
     render: ->
       options = ''
-      $.map Control.currency, (val, key) =>
+      $.map ListCurrency.currencyObj, (val, key) =>
         if @price.defaultCurrency is key
           selected = 'selected'
         else
@@ -82,20 +62,19 @@ do ($=jQuery, window, document) ->
       if defaultCurrency is @_currentCurrency.currency
         defaultPrice
       else
-        if defaultCurrency is 'RUB'
-          rubPrice = defaultPrice
+        if defaultCurrency is 'USA'
+          basePrice = defaultPrice
         else
           currency = ListCurrency.currencyObj[defaultCurrency]
-          rubPrice = defaultPrice * currency.v
-          if @_currentCurrency.currency is 'RUB'
-            return Math.ceil rubPrice
-        Math.ceil rubPrice / @_currentCurrency.v
+          basePrice = defaultPrice * currency.value
+          if @_currentCurrency.currency is 'USA'
+            return Math.ceil basePrice
+        Math.ceil basePrice * @_currentCurrency.value
 
     changePrices: (newCurrency) ->
       @_currentCurrency = $.extend(
         {currency: newCurrency}
-        ListCurrency.currencyObj[newCurrency]
-        Control.currency[newCurrency])
+        ListCurrency.currencyObj[newCurrency])
 
       $('[data-currency-price]', @el).each (index, element) =>
         newPrice = @numberWithCommas @convertPrice element
@@ -184,8 +163,10 @@ do ($=jQuery, window, document) ->
           console.log status
           result = {}
           $.map data, (val, key) ->
-            result[key] =
-              v: val.value
+            result[val.code] =
+              name: val.name
+              symbol: val.symbol
+              value: parseFloat val.value
           ListCurrency.currencyObj = result
           ListCurrency.initPrice()
           Cookies.set(
