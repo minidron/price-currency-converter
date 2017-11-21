@@ -7,6 +7,7 @@ do ($=jQuery, window, document) ->
     @_events: false
 
     render: ->
+      # виджет смены валют
       options = ''
       $.map ListCurrency.currencyObj, (val, key) =>
         if @price.defaultCurrency is key
@@ -18,6 +19,7 @@ do ($=jQuery, window, document) ->
       "<div class='price__control-wrapper'>#{select}</div>"
 
     changePrices: (newCurrency) ->
+      # запускаем механизм смены валют во всех секциях
       $.each Price.prices, (index, element) ->
         element.changePrices newCurrency
 
@@ -51,27 +53,33 @@ do ($=jQuery, window, document) ->
     @prices: []
 
     numberWithCommas: (num) ->
+      # 10000 -> 10 000
       num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
     strToPrice: (str) ->
+      # пробуем найти в строке цены
       parseFloat(str.replace(/(\s|\,)/g, ''))
 
     convertPrice: (element) ->
-      defaultPrice = $(element).data('currencyPrice')
-      defaultCurrency = $(element).data('currencyCurrency')
-      if defaultCurrency is @_currentCurrency.currency
-        defaultPrice
+      # конвертор цены из базовой валюты секции в выбранную
+      mainCurrency = 'USA'
+
+      baseCurrencyPrice = $(element).data 'currencyPrice'
+      baseCurrency = $(element).data 'currencyCurrency'
+      if baseCurrency is @_currentCurrency.currency
+        baseCurrencyPrice
       else
-        if defaultCurrency is 'USA'
-          basePrice = defaultPrice
+        if baseCurrency is mainCurrency
+          mainPrice = baseCurrencyPrice
         else
-          currency = ListCurrency.currencyObj[defaultCurrency]
-          basePrice = defaultPrice * currency.value
-          if @_currentCurrency.currency is 'USA'
-            return Math.ceil basePrice
-        Math.ceil basePrice * @_currentCurrency.value
+          currency = ListCurrency.currencyObj[baseCurrency]
+          mainPrice = baseCurrencyPrice / currency.value
+          if @_currentCurrency.currency is mainCurrency
+            return Math.ceil mainPrice
+        Math.ceil mainPrice * @_currentCurrency.value
 
     changePrices: (newCurrency) ->
+      # обновление всех цен
       @_currentCurrency = $.extend(
         {currency: newCurrency}
         ListCurrency.currencyObj[newCurrency])
@@ -91,6 +99,7 @@ do ($=jQuery, window, document) ->
         false
 
     findPrices: (textNode) ->
+      # поиск цен в каждой текстовой ноде
       if textNode.nodeValue.replace /\s/g,''
         replaced = false
         str = textNode.nodeValue.replace /\&nbsp\;/g, ' '
@@ -119,6 +128,7 @@ do ($=jQuery, window, document) ->
           textNode.parentNode.removeChild textNode
 
     walkDOM: (el) ->
+      # обход всех нод элемента
       if el.childNodes.length > 0
         for child in el.childNodes
           @walkDOM child
@@ -128,6 +138,7 @@ do ($=jQuery, window, document) ->
             @findPrices el
 
     initControl: ->
+      # запуск контроллера для всех цен
       new Control @
 
     constructor: (@el) ->
@@ -147,20 +158,23 @@ do ($=jQuery, window, document) ->
     @currencyObj: {}
 
     @_serialize: (obj) ->
+      # json -> строка (для хранения в куках)
       JSON.stringify obj
 
     @_deserialize: (str) ->
+      # строка -> json
       JSON.parse str
 
     @initPrice: ->
+      # для каждой секции с ценами создаём отдельный объект Price
       $('[data-currency]').each (index, element) ->
         new Price element
 
     @fetchCurrency: ->
+      # запрашиваем список валют
       $.ajax
         url: ListCurrency.url
         success: (data, status, jqXHR) ->
-          console.log status
           result = {}
           $.map data, (val, key) ->
             result[val.code] =
@@ -178,6 +192,7 @@ do ($=jQuery, window, document) ->
           console.log status
 
     @getCurrency: ->
+      # получаем курсы валют
       if typeof Cookies.get('listCurrency') isnt 'undefined'
         ListCurrency.currencyObj = ListCurrency._deserialize(
           Cookies.get('listCurrency')
