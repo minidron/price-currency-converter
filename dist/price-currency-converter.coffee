@@ -134,7 +134,7 @@ do ($=jQuery, window, document) ->
           @walkDOM child
       else
         if el.nodeType is Node.TEXT_NODE
-          if not el.parentNode.getAttribute('data-currency-price') and
+          if not el.parentNode.getAttribute('data-currency-price') or
               el.parentNode.getAttribute('data-currency-skip')
             @findPrices el
 
