@@ -130,12 +130,14 @@ do ($=jQuery, window, document) ->
     walkDOM: (el) ->
       # обход всех нод элемента
       if el.childNodes.length > 0
+        if el.hasAttribute('data-currency-skip')
+          return
         for child in el.childNodes
           @walkDOM child
+
       else
         if el.nodeType is Node.TEXT_NODE
-          if not el.parentNode.getAttribute('data-currency-price') or
-              el.parentNode.getAttribute('data-currency-skip')
+          if not el.parentNode.getAttribute('data-currency-price')
             @findPrices el
 
     initControl: ->
